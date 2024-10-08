@@ -1,5 +1,5 @@
 #include "raylib.h"
-#include <stdlib.h>           // Required for: free()
+#include <stdlib.h>
 
 // Generate cubicmap mesh from image data
 // Inspired from https://github.com/raysan5/raylib/blob/3fb1ba25aca0a6b023ca254a0910df36b0744e64/src/rmodels.c#L3224
@@ -11,12 +11,11 @@ Mesh GenMeshCubicmap2(Image cubicmap, Vector3 cubeSize)
 
     Color *pixels = LoadImageColors(cubicmap);
 
-    // NOTE: Max possible number of triangles numCubes*(12 triangles by cube)
     int maxTriangles = cubicmap.width*cubicmap.height*12;
 
-    int vCounter = 0;       // Used to count vertices
-    int tcCounter = 0;      // Used to count texcoords
-    int nCounter = 0;       // Used to count normals
+    int vCounter = 0;
+    int tcCounter = 0;
+    int nCounter = 0;
 
     float w = cubeSize.x;
     float h = cubeSize.z;
@@ -26,7 +25,6 @@ Mesh GenMeshCubicmap2(Image cubicmap, Vector3 cubeSize)
     Vector2 *mapTexcoords = (Vector2 *)RL_MALLOC(maxTriangles*3*sizeof(Vector2));
     Vector3 *mapNormals = (Vector3 *)RL_MALLOC(maxTriangles*3*sizeof(Vector3));
 
-    // Define the 6 normals of the cube, we will combine them accordingly later...
     Vector3 n1 = { 1.0f, 0.0f, 0.0f };
     Vector3 n2 = { -1.0f, 0.0f, 0.0f };
     Vector3 n3 = { 0.0f, 1.0f, 0.0f };
@@ -34,7 +32,6 @@ Mesh GenMeshCubicmap2(Image cubicmap, Vector3 cubeSize)
     Vector3 n5 = { 0.0f, 0.0f, -1.0f };
     Vector3 n6 = { 0.0f, 0.0f, 1.0f };
 
-    // NOTE: We use texture rectangles to define different textures for top-bottom-front-back-right-left (6)
     typedef struct RectangleF {
         float x;
         float y;
@@ -53,7 +50,6 @@ Mesh GenMeshCubicmap2(Image cubicmap, Vector3 cubeSize)
     {
         for (int x = 0; x < cubicmap.width; ++x)
         {
-            // Define the 8 vertex of the cube, we will combine them accordingly later...
             Vector3 v1 = { w*(x - 0.5f), h2, h*(z - 0.5f) };
             Vector3 v2 = { w*(x - 0.5f), h2, h*(z + 0.5f) };
             Vector3 v3 = { w*(x + 0.5f), h2, h*(z + 0.5f) };
@@ -63,12 +59,8 @@ Mesh GenMeshCubicmap2(Image cubicmap, Vector3 cubeSize)
             Vector3 v7 = { w*(x - 0.5f), 0, h*(z + 0.5f) };
             Vector3 v8 = { w*(x + 0.5f), 0, h*(z + 0.5f) };
 
-            // We check pixel color to be WHITE -> draw full cube
             if (COLOR_EQUAL(pixels[z*cubicmap.width + x], WHITE))
             {
-                // Define triangles and checking collateral cubes
-                //------------------------------------------------
-
                 // Define top triangles (2 tris, 6 vertex --> v1-v2-v3, v1-v3-v4)
                 // WARNING: Not required for a WHITE cubes, created to allow seeing the map from outside
                 mapVertices[vCounter] = v1;
@@ -299,12 +291,10 @@ Mesh GenMeshCubicmap2(Image cubicmap, Vector3 cubeSize)
     // Move data from mapVertices temp arrays to vertices float array
     mesh.vertexCount = vCounter;
     mesh.triangleCount = vCounter/3;
-
     mesh.vertices = (float *)RL_MALLOC(mesh.vertexCount*3*sizeof(float));
     mesh.normals = (float *)RL_MALLOC(mesh.vertexCount*3*sizeof(float));
     mesh.texcoords = (float *)RL_MALLOC(mesh.vertexCount*2*sizeof(float));
     mesh.colors = NULL;
-
     int fCounter = 0;
 
     // Move vertices data
@@ -315,7 +305,6 @@ Mesh GenMeshCubicmap2(Image cubicmap, Vector3 cubeSize)
         mesh.vertices[fCounter + 2] = mapVertices[i].z;
         fCounter += 3;
     }
-
     fCounter = 0;
 
     // Move normals data
@@ -326,7 +315,6 @@ Mesh GenMeshCubicmap2(Image cubicmap, Vector3 cubeSize)
         mesh.normals[fCounter + 2] = mapNormals[i].z;
         fCounter += 3;
     }
-
     fCounter = 0;
 
     // Move texcoords data
@@ -341,9 +329,7 @@ Mesh GenMeshCubicmap2(Image cubicmap, Vector3 cubeSize)
     RL_FREE(mapNormals);
     RL_FREE(mapTexcoords);
 
-    UnloadImageColors(pixels);   // Unload pixels color data
-
-    // Upload vertex data to GPU (static mesh)
+    UnloadImageColors(pixels);
     UploadMesh(&mesh, false);
 
     return mesh;

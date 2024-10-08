@@ -8,39 +8,34 @@ int main(void)
 
     InitWindow(screenWidth, screenHeight, "astro janitor");
 
-    // Define the camera to look into our 3d world
     Camera camera = { 0 };
-    camera.position = (Vector3){ 0.2f, 0.4f, 0.2f };    // Camera position
-    camera.target = (Vector3){ 0.185f, 0.4f, 0.0f };    // Camera looking at point
-    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
-    camera.fovy = 45.0f;                                // Camera field-of-view Y
-    camera.projection = CAMERA_PERSPECTIVE;             // Camera projection type
+    camera.position = (Vector3){ 0.2f, 0.4f, 0.2f };
+    camera.target = (Vector3){ 0.185f, 0.4f, 0.0f };
+    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };
+    camera.fovy = 45.0f;
+    camera.projection = CAMERA_PERSPECTIVE;
 
-    Image imMap = LoadImage("../resources/cubicmap.png");      // Load cubicmap image (RAM)
-    Texture2D cubicmap = LoadTextureFromImage(imMap);       // Convert image to texture to display (VRAM)
+    // TODO: Load cubicmap from image data converted with r
+    Image imMap = LoadImage("../resources/cubicmap.png");
+    Texture2D cubicmap = LoadTextureFromImage(imMap);
     Mesh mesh = GenMeshCubicmap2(imMap, (Vector3){ 1.0f, 1.0f, 1.0f });
     Model model = LoadModelFromMesh(mesh);
 
-    // NOTE: By default each cube is mapped to one part of texture atlas
     Texture2D texture = LoadTexture("../resources/cubicmap_atlas.png");    // Load map texture
     model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;    // Set map diffuse texture
 
-    // Get map image data to be used for collision detection
     Color *mapPixels = LoadImageColors(imMap);
-    UnloadImage(imMap);             // Unload image from RAM
+    UnloadImage(imMap);
 
-    Vector3 mapPosition = { -16.0f, 0.0f, -8.0f };  // Set model position
+    Vector3 mapPosition = { -16.0f, 0.0f, -8.0f };
 
-    DisableCursor();                // Limit cursor to relative movement inside the window
+    DisableCursor();
 
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
+    SetTargetFPS(60);
 
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    while (!WindowShouldClose())
     {
         // Update
-        //----------------------------------------------------------------------------------
         Vector3 oldCamPos = camera.position;    // Store old camera position
 
         UpdateCamera(&camera, CAMERA_FIRST_PERSON);
@@ -74,10 +69,8 @@ int main(void)
                 }
             }
         }
-        //----------------------------------------------------------------------------------
 
         // Draw
-        //----------------------------------------------------------------------------------
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
@@ -95,19 +88,13 @@ int main(void)
             DrawFPS(10, 10);
 
         EndDrawing();
-        //----------------------------------------------------------------------------------
     }
 
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    UnloadImageColors(mapPixels);   // Unload color array
-
-    UnloadTexture(cubicmap);        // Unload cubicmap texture
-    UnloadTexture(texture);         // Unload map texture
-    UnloadModel(model);             // Unload map model
-
-    CloseWindow();                  // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
+    UnloadImageColors(mapPixels);
+    UnloadTexture(cubicmap);
+    UnloadTexture(texture);
+    UnloadModel(model);
+    CloseWindow();
 
     return 0;
 }
