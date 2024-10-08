@@ -15,14 +15,14 @@ int main(void)
     camera.fovy = 45.0f;
     camera.projection = CAMERA_PERSPECTIVE;
 
-    // TODO: Load cubicmap from image data converted with r
+    // TODO: Load cubicmap from image data converted with tools
     Image imMap = LoadImage("../resources/cubicmap.png");
     Texture2D cubicmap = LoadTextureFromImage(imMap);
     Mesh mesh = GenMeshCubicmap2(imMap, (Vector3){ 1.0f, 1.0f, 1.0f });
-    Model model = LoadModelFromMesh(mesh);
+    Model model = LoadModelFromMesh2(mesh);
 
-    Texture2D texture = LoadTexture("../resources/cubicmap_atlas.png");    // Load map texture
-    model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;    // Set map diffuse texture
+    Texture2D texture = LoadTexture("../resources/cubicmap_atlas.png");
+    model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
 
     Color *mapPixels = LoadImageColors(imMap);
     UnloadImage(imMap);
@@ -36,7 +36,7 @@ int main(void)
     while (!WindowShouldClose())
     {
         // Update
-        Vector3 oldCamPos = camera.position;    // Store old camera position
+        Vector3 oldCamPos = camera.position;
 
         UpdateCamera(&camera, CAMERA_FIRST_PERSON);
 
@@ -81,8 +81,6 @@ int main(void)
 
             DrawTextureEx(cubicmap, (Vector2){ GetScreenWidth() - cubicmap.width*4.0f - 20, 20.0f }, 0.0f, 4.0f, WHITE);
             DrawRectangleLines(GetScreenWidth() - cubicmap.width*4 - 20, 20, cubicmap.width*4, cubicmap.height*4, GREEN);
-
-            // Draw player position radar
             DrawRectangle(GetScreenWidth() - cubicmap.width*4 - 20 + playerCellX*4, 20 + playerCellY*4, 4, 4, RED);
 
             DrawFPS(10, 10);

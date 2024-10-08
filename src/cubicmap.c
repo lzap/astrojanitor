@@ -1,5 +1,32 @@
 #include "raylib.h"
+#include "raymath.h"
 #include <stdlib.h>
+
+// Load model from generated mesh
+// WARNING: A shallow copy of mesh is generated, passed by value,
+// as long as struct contains pointers to data and some values, we get a copy
+// of mesh pointing to same data as original version... be careful!
+Model LoadModelFromMesh2(Mesh mesh)
+{
+    Model model = { 0 };
+
+    model.transform = MatrixIdentity();
+
+    model.meshCount = 1;
+    model.meshes = (Mesh *)RL_CALLOC(model.meshCount, sizeof(Mesh));
+    model.meshes[0] = mesh;
+
+    model.materialCount = 1;
+    model.materials = (Material *)RL_CALLOC(model.materialCount, sizeof(Material));
+    model.materials[0] = LoadMaterialDefault();
+
+    model.meshMaterial = (int *)RL_CALLOC(model.meshCount, sizeof(int));
+    model.meshMaterial[0] = 0;  // First material index
+
+    return model;
+}
+
+// TODO: Refactor to return array of meshes and assign two materials
 
 // Generate cubicmap mesh from image data
 // Inspired from https://github.com/raysan5/raylib/blob/3fb1ba25aca0a6b023ca254a0910df36b0744e64/src/rmodels.c#L3224
@@ -295,9 +322,9 @@ Mesh GenMeshCubicmap2(Image cubicmap, Vector3 cubeSize)
     mesh.normals = (float *)RL_MALLOC(mesh.vertexCount*3*sizeof(float));
     mesh.texcoords = (float *)RL_MALLOC(mesh.vertexCount*2*sizeof(float));
     mesh.colors = NULL;
-    int fCounter = 0;
 
     // Move vertices data
+    int fCounter = 0;
     for (int i = 0; i < vCounter; i++)
     {
         mesh.vertices[fCounter] = mapVertices[i].x;
@@ -305,9 +332,9 @@ Mesh GenMeshCubicmap2(Image cubicmap, Vector3 cubeSize)
         mesh.vertices[fCounter + 2] = mapVertices[i].z;
         fCounter += 3;
     }
-    fCounter = 0;
 
     // Move normals data
+    fCounter = 0;
     for (int i = 0; i < nCounter; i++)
     {
         mesh.normals[fCounter] = mapNormals[i].x;
@@ -315,9 +342,9 @@ Mesh GenMeshCubicmap2(Image cubicmap, Vector3 cubeSize)
         mesh.normals[fCounter + 2] = mapNormals[i].z;
         fCounter += 3;
     }
-    fCounter = 0;
 
     // Move texcoords data
+    fCounter = 0;
     for (int i = 0; i < tcCounter; i++)
     {
         mesh.texcoords[fCounter] = mapTexcoords[i].x;
